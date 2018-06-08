@@ -1,0 +1,21 @@
+{
+    "corpid": "",
+    "app":
+    {
+        "app0": {
+            "agentid": 0,
+            "secret": "token0",
+        },
+        "app1":{
+            "agentid": 1,
+            "secret": "token1"
+        }
+    "party":
+    {
+        "party0": "0"
+    },
+    "user":
+    [
+        "yaochenzhi"
+    ]
+}
