@@ -21,25 +21,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TOKEN_DB = os.path.join(BASE_DIR, 'wework_token.db')
 WECONFIG_FILE = os.path.join(BASE_DIR, 'wework.cfg')
 
-with open(WECONFIG_FILE) as f:
-    wecfg = json.load(f)
-
-current_time = time.strftime("%Y-%m-%d %H:%M:%S")
-conn = sqlite3.connect(TOKEN_DB)
-cursor = conn.cursor()
-
-default_msg_data = {
-    'toparty': wecfg['party']['zjz'],
-    # 'touser': None,
-    # 'totag': None,
-    'agentid': '',
-    'msgtype': 'text',
-    "text" : {
-        "content" : '',
-    },
-    "safe":0
-}
-
 
 def ensure_msg(func):
     def _dec(self, *args, **kwargs):
@@ -55,16 +36,36 @@ class WeApp(object):
     creator = testor = 'yaochenzhi'
 
     def __init__(self, app):
-        self.corpid = wecfg['corpid']
-        if app in wecfg['app']:
+        with open(WECONFIG_FILE) as f:
+            self.wecfg = json.load(f)
+
+        self.current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.conn = sqlite3.connect(TOKEN_DB)
+        self.cursor = self.conn.cursor()
+
+        self.default_msg_data = {
+            'toparty': self.wecfg['party']['zjz'],
+            # 'touser': None,
+            # 'totag': None,
+            'agentid': '',
+            'msgtype': 'text',
+            "text" : {
+                "content" : '',
+            },
+            "safe":0
+        }
+
+
+        self.corpid = self.wecfg['corpid']
+        if app in self.wecfg['app']:
             self.app = app
-            self.agentid = wecfg['app'][app]['agentid']
-            self.corpsecret = wecfg['app'][app]['secret']
+            self.agentid = self.wecfg['app'][app]['agentid']
+            self.corpsecret = self.wecfg['app'][app]['secret']
             self.token_in_db = False
             self.token = self.get_token_from_cache_db()
 
-            if 'chatid' in wecfg['app'][app]:
-                self.chatid = wecfg['app'][app]['chatid']
+            if 'chatid' in self.wecfg['app'][app]:
+                self.chatid = self.wecfg['app'][app]['chatid']
         else:
             print("No app named {} ! Please check or update wework.cfg !".format(app))
 
@@ -87,7 +88,7 @@ class WeApp(object):
     @ensure_msg
     def send_app_msg(self, msg, touser=None, toparty=None, test=False, testor=None):
         import copy
-        msg_data = copy.deepcopy(default_msg_data)
+        msg_data = copy.deepcopy(self.default_msg_data)
         url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={}'.format(self.token)
         if testor:
             touser = testor
@@ -120,10 +121,10 @@ class WeApp(object):
     def get_token_from_cache_db(self):
         print("Getting token from cache db ...")
         try:
-            r = cursor.execute('select token from app_token where app = ?', (self.app, ))
+            r = self.cursor.execute('select token from app_token where app = ?', (self.app, ))
         except sqlite3.OperationalError:
             self.init_db()
-            r = cursor.execute('select token from app_token where app = ?', (self.app, ))
+            r = self.cursor.execute('select token from app_token where app = ?', (self.app, ))
         token_in_db = r.fetchone()
         if token_in_db:
             self.token = token_in_db[0]
@@ -141,18 +142,18 @@ class WeApp(object):
             self.token = return_info['access_token']
         if self.token_in_db:
             print("Updating app_token table for app '{}' ...".format(self.app))
-            cursor.execute("update app_token set token = ?, update_time = ? where app = ?", (self.token, current_time, self.app))
+            self.cursor.execute("update app_token set token = ?, update_time = ? where app = ?", (self.token, self.current_time, self.app))
         else:
             print("Caching to app_token table for app '{}' ...".format(self.app))
-            cursor.execute("insert into app_token values (?, ?, ?)", (self.app, self.token, current_time))
-        conn.commit()
+            self.cursor.execute("insert into app_token values (?, ?, ?)", (self.app, self.token, self.current_time))
+        self.conn.commit()
 
     def init_db(self):
         print("Creating app_token table ...")
-        cursor.execute("create table app_token (app text, token text, update_time text)")
-        conn.commit()
+        self.cursor.execute("create table app_token (app text, token text, update_time text)")
+        self.conn.commit()
 
     def close(self):
         print("Closing connection ...")
-        cursor.close()
-        conn.close()
+        self.cursor.close()
+        self.conn.close()
