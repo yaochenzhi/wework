@@ -136,7 +136,7 @@ class WeApp(object):
     def get_token_from_server(self):
         print("Fetching token from tencent server ...")
         url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={}&corpsecret={}'.format(self.corpid, self.corpsecret)
-        r = requests.get(url)
+        r = requests.get(url, proxies=proxies)
         return_info = json.loads(r.text)
         if return_info['errcode'] == 0:
             self.token = return_info['access_token']
