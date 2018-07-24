@@ -82,7 +82,7 @@ class WeApp(object):
                 r = requests.post(url, data=json.dumps(msg_data), proxies=proxies)
             print("Msg sent with msg: {}".format(r.text))
         else:
-            r = requests.get(url)
+            r = requests.get(url, proxies=proxies)
             return r.text
 
     @ensure_msg
