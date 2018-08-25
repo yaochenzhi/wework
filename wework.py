@@ -107,7 +107,17 @@ class WeApp(object):
             touser = testor
         elif test:
             touser = self.testor
+
         if touser:
+            if isinstance(touser, str):
+                touser = (touser, )
+
+            from collections import Iterable
+            if isinstance(touser, Iterable):
+                touser = '|'.join(touser)
+            else:
+                exit("The 'touser' argument must be a string or its iterable!")
+
             del msg_data['toparty']
             msg_data['touser'] = touser
         elif toparty:
