@@ -69,6 +69,19 @@ class WeApp(object):
         else:
             print("No app named {} ! Please check or update wework.cfg !".format(app))
 
+    @classmethod
+    def format_text_msg(cls, title, content, current_time=None):
+        if current_time is None:
+            import datetime
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if isinstance(content, dict):
+            cd = content
+            content = ''
+            for k, v in cd.items():
+                content += '{}: {}\n'.format(k, v)
+        formatted_text = "{}\n{}\n\n{}".format(title, current_time, content)
+        return formatted_text
+
     def auto_request(self, url, msg_data=None, **kwargs):
         if msg_data:
             print("Msg sending ...")
