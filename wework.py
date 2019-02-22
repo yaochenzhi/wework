@@ -125,7 +125,7 @@ class WeApp(object):
 
         msg_data['text']['content'] = msg
         msg_data['agentid'] = self.agentid
-        self.auto_request(url, msg_data)
+        return self.auto_request(url, msg_data)
 
     @ensure_msg
     def send_room_msg(self, msg):
@@ -139,7 +139,7 @@ class WeApp(object):
         }
         print(msg_data)
         url = 'https://qyapi.weixin.qq.com/cgi-bin/appchat/send?access_token={}'.format(self.token)
-        self.auto_request(url=url, msg_data=msg_data)
+        return self.auto_request(url=url, msg_data=msg_data)
 
     def get_token_from_cache_db(self):
         print("Getting token from cache db ...")
@@ -170,6 +170,7 @@ class WeApp(object):
             print("Caching to app_token table for app '{}' ...".format(self.app))
             self.cursor.execute("insert into app_token values (?, ?, ?)", (self.app, self.token, self.current_time))
         self.conn.commit()
+        return self.token
 
     def init_db(self):
         print("Creating app_token table ...")
