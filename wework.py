@@ -57,6 +57,8 @@ class WeApp(object):
 
 
         self.corpid = self.wecfg['corpid']
+
+        self.app_valid, self.room_valid = False, False
         if app in self.wecfg['app']:
             self.app = app
             self.agentid = self.wecfg['app'][app]['agentid']
@@ -66,8 +68,11 @@ class WeApp(object):
 
             if 'chatid' in self.wecfg['app'][app]:
                 self.chatid = self.wecfg['app'][app]['chatid']
+                self.room_valid = True
+            self.app_valid = True
         else:
             print("No app named {} ! Please check or update wework.cfg !".format(app))
+        self.app_info = self.app_valid, self.room_valid
 
     @classmethod
     def format_text_msg(cls, title, content, current_time=None):
