@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Date: 2016-06-14 v0.2
+Date: 2018-06-14 v0.2
 Note:
     1. Code cleaned.
 
