@@ -117,11 +117,10 @@ class WeApp(object):
             if isinstance(touser, str):
                 touser = (touser, )
 
-            from collections import Iterable
-            if isinstance(touser, Iterable):
+            elif isinstance(touser, (list, tuple)):
                 touser = '|'.join(touser)
             else:
-                exit("The 'touser' argument must be a string or its iterable!")
+                exit("The 'touser' argument must be a string or a list of string!")
 
             del msg_data['toparty']
             msg_data['touser'] = touser
